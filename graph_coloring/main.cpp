@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "src/iter_greedy.h"
+#include "src/tabu.h"
 
 void save_results(const char *filename, const Solution &sol) {
   // try load existing results
@@ -25,6 +26,7 @@ void save_results(const char *filename, const Solution &sol) {
   }
 
   if (overwrite) {
+    std::cout << "Overwrite existing solution..." << std::endl;
     std::ofstream output(filename);
     output << sol << std::endl;
     output.close();
@@ -33,8 +35,10 @@ void save_results(const char *filename, const Solution &sol) {
 
 int main(int argc, char *argv[]) {
   auto graph = Graph(argv[1]);
-  auto sol = IterGreedy().solve(graph);
+  TabuSearch solver(graph);
+  auto sol = solver.solve();
   graph.check_coloring(sol.get_colorings());
+  std::cout << sol << std::endl;
   save_results(argv[2], sol);
   return 0;
 }

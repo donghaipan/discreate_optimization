@@ -67,15 +67,8 @@ std::vector<size_t> IterGreedy::permute(const Solution &sol) const {
   return idx;
 }
 
-Solution IterGreedy::solve(const Graph &graph) {
+Solution IterGreedy::solve() {
   std::srand(static_cast<unsigned int>(std::time(0)));
-  n_node = graph.get_num_node();
-
-  edges.clear();
-  for (const auto &edge : graph.get_edges()) {
-    edges[edge.left_node].insert(edge.right_node);
-    edges[edge.right_node].insert(edge.left_node);
-  }
 
   std::vector<size_t> idx;
   idx.resize(n_node);

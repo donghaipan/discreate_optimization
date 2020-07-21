@@ -14,7 +14,7 @@ struct Edge {
 };
 
 class Graph {
- public:
+public:
   Graph(const char *filename) {
     std::ifstream input(filename);
 
@@ -31,7 +31,7 @@ class Graph {
 
     input.close();
   }
-  
+
   void check_coloring(const std::vector<int> &colors) const {
     if (colors.size() != get_num_node()) {
       std::cout << "Size does not match: number of graph nodes ("
@@ -45,13 +45,19 @@ class Graph {
                   << edge.right_node << std::endl;
       }
     }
+
+    for (auto c : colors) {
+      if (c == 0) {
+        std::cout << "invalid solution" << std::endl;
+      }
+    }
   }
 
   size_t get_num_node() const { return n_node; }
   size_t get_num_edge() const { return n_edge; }
   const std::vector<Edge> &get_edges() const { return edges; }
 
- private:
+private:
   size_t n_node;
   size_t n_edge;
   std::vector<Edge> edges;
