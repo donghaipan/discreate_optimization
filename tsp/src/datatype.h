@@ -1,91 +1,52 @@
-#ifndef TSP_POINT_H
-#define TSP_POINT_H
+#ifndef __SA_DATATYPE_H__
+#define __SA_DATATYPE_H__
 
 #include <cmath>
-#include <iomanip>
-#include <ostream>
 #include <vector>
 
-namespace tsp {
+namespace tsp_sa {
 
-struct Point {
-  double x;
-  double y;
-  Point(const double x, const double y) : x(x), y(y) {}
-  double distance_to(const Point &other) const {
-    return std::sqrt(std::pow(x - other.x, 2) + std::pow(y - other.y, 2));
-  }
-  friend std::ostream &operator<<(std::ostream &os, const Point &point) {
-    os << "(" << point.x << ", " << point.y << ")";
-    return os;
+typedef std::vector<size_t> city_order_type;
+
+struct City {
+  double x_;
+  double y_;
+  City(const double x, const double y) : x_(x), y_(y) {}
+  double dist_to(const City &other) const {
+    return std::sqrt(std::pow(x_ - other.x_, 2) + std::pow(y_ - other.y_, 2));
   }
 };
 
 class CityMap {
 public:
-  CityMap(const std::vector<Point> &cities_) : cities(cities_) {
-    const auto n_city = cities.size();
-    distances.resize(n_city);
-    for (size_t i = 0; i < n_city; i++) {
-      distances[i].resize(n_city);
-    }
+  CityMap(const std::vector<City> &cities)
+      : cities_(cities), n_city_(cities.size()) {}
 
-    for (size_t i = 0; i < n_city; i++) {
-      distances[i][i] = 0.;
-      for (size_t j = i + 1; j < n_city; j++) {
-        const auto dist = cities_[i].distance_to(cities_[j]);
-        distances[i][j] = dist;
-        distances[j][i] = dist;
-      }
-    }
-  };
-  size_t num_cities() const { return cities.size(); }
   double dist_between_cities(const size_t i, const size_t j) const {
-    return distances[i][j];
+    return cities_.at(i).dist_to(cities_.at(j));
+  }
+  size_t get_city_number() const { return n_city_; }
+  size_t get_next_idx(const size_t idx) const {
+    return (idx + 1) == n_city_ ? 0 : idx + 1;
+  }
+  size_t get_prev_idx(const size_t idx) const {
+    return idx ? idx - 1 : n_city_ - 1;
+  }
+
+  double evaluate(const city_order_type &sol) const {
+    double result = 0.;
+    for (size_t i = 0; i < sol.size() - 1; i++) {
+      result += dist_between_cities(sol.at(i), sol.at(i + 1));
+    }
+    result += dist_between_cities(sol.front(), sol.back());
+    return result;
   }
 
 private:
-  std::vector<Point> cities;
-  std::vector<std::vector<double>> distances;
+  std::vector<City> cities_;
+  size_t n_city_;
 };
 
-class Solution {
-public:
-  Solution(const std::vector<size_t> &order_, const double dist_)
-      : dist(dist_), order(order_) {}
-  const std::vector<size_t> &get_order() const { return order; }
-  double get_dist() const { return dist; }
-  bool is_valid() const {
-    auto n_city = order.size();
-
-    size_t start_idx = 0;
-    for (size_t i = 0; i < n_city; i++) {
-      start_idx = order[start_idx];
-    }
-
-    return start_idx == 0;
-  }
-
-  friend std::ostream &operator<<(std::ostream &os, const Solution &sol) {
-    os << std::fixed << std::setprecision(2) << sol.dist << " " << 0
-       << std::endl;
-
-    auto idx = 0;
-    for (size_t i = 0; i < sol.order.size(); i++) {
-      if (i > 0) {
-        os << " ";
-      }
-      os << idx;
-      idx = sol.order[idx];
-    }
-    return os;
-  }
-
-private:
-  double dist;
-  std::vector<size_t> order;
-};
-
-} // namespace tsp
+} // namespace tsp_sa
 
 #endif
